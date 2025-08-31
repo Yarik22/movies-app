@@ -67,13 +67,11 @@ export const toggleFavorite = createAsyncThunk<
   { rejectValue: string; state: RootState }
 >("movies/toggleFavorite", async (movie, thunkAPI) => {
   try {
-    // If the movie has an ID, just patch favorite
     if (movie.id && !isNaN(Number(movie.id))) {
       const res = await api.patch(`/movies/${movie.id}/favorite`);
       return res.data as Movie;
     }
 
-    // If movie has no ID, create it first
     const createPayload: UpsertMoviePayload = {
       title: normalizeTitle(movie.title),
       year: movie.year,
@@ -161,14 +159,12 @@ const slice = createSlice({
         s.error = String(a.payload || a.error?.message);
       })
       .addCase(toggleFavorite.pending, (state, action) => {
-        const movie = action.meta.arg; // Movie object
+        const movie = action.meta.arg;
         const idx = state.items.findIndex((m) => m.title === movie.title);
 
-        // Optimistically toggle favorite
         if (idx >= 0) {
           state.items[idx].is_favorite = !state.items[idx].is_favorite;
         } else {
-          // If it's a new movie (not in state), add it as favorite
           state.items.unshift({ ...movie, is_favorite: true });
         }
       })
@@ -181,7 +177,6 @@ const slice = createSlice({
         else state.items.unshift(newMovie);
       })
       .addCase(toggleFavorite.rejected, (state, action) => {
-        // Rollback favorite change on failure
         const movie = action.meta.arg;
         const idx = state.items.findIndex((m) => m.title === movie.title);
         if (idx >= 0)

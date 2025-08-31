@@ -5,7 +5,6 @@ import * as movieModel from "../models/movieModel.js";
 
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
 
-// Helper: ensure user exists based on header
 async function getUser(req: Request) {
   const username = req.header("x-username") || "guest";
   return userModel.ensureUser(username);
@@ -26,9 +25,7 @@ export async function getMovies(req: Request, res: Response) {
         )}`
       );
       if (resp.data.Search) {
-        // Получаем массив imdbID
         const ids = resp.data.Search.map((m: any) => m.imdbID);
-        // Запрашиваем детали для каждого фильма параллельно
         omdbMovies = await Promise.all(
           ids.map(async (imdbID: string) => {
             const detailResp = await axios.get(
@@ -110,7 +107,6 @@ export async function toggleFavorite(req: Request, res: Response) {
     const user = await getUser(req);
     const updated = await movieModel.toggleFavorite(user.id, id);
 
-    // Ensure the ID is a string (important for Redux matching)
     res.json({ ...updated, id: String(updated.id) });
   } catch (err: any) {
     res.status(400).json({ error: err.message });

@@ -14,8 +14,8 @@ if (!connectionString) {
 export const pool = new Pool({
   connectionString: connectionString || "postgres://postgres@localhost/postgres",
   ssl: connectionString && !connectionString.includes("localhost")
-    ? { rejectUnauthorized: false } // use SSL for non-localhost DBs
-    : false, // no SSL for local Docker Postgres
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 export default pool;
